@@ -1,57 +1,9 @@
-import numpy as np
+import os
 from pymatgen.core import Lattice, Structure
 from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.io.pwscf import PWInput
 from ase.io import write
-import matplotlib.pyplot as plt
-
-
-def demonstrate(structure, name="C36 structure"):
-
-    coords = structure.cart_coords
-    species = [site.specie.symbol for site in structure]
-
-    colors = {"Mg":"red","Ni":"blue"}
-
-    fig = plt.figure(figsize=(8,6))
-    ax = fig.add_subplot(111, projection='3d')
-
-    for i, element in enumerate(species):
-        ax.scatter(
-            coords[i][0],
-            coords[i][1],
-            coords[i][2],
-            color=colors[element],
-            s=50,
-            alpha=0.8
-        )
-
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
-    ax.set_zlabel("Z")
-
-    plt.title(name)
-    plt.show()
-
-
-def random_displacement(atoms, amplitude=0.05):
-
-    new_atoms = atoms.copy()
-    displacement = amplitude * np.random.randn(len(atoms),3)
-    new_atoms.positions += displacement
-    return new_atoms
-
-
-def strain_cell(atoms, strain=0.02):
-
-    new_atoms = atoms.copy()
-    cell = new_atoms.get_cell()
-
-    deformation = np.eye(3) + strain * np.random.randn(3,3)
-    new_cell = cell @ deformation
-
-    new_atoms.set_cell(new_cell, scale_atoms=True)
-    return new_atoms
-
+from subfunctions import *
 
 # параметры решётки
 a = 4.9
@@ -61,12 +13,15 @@ lattice = Lattice.hexagonal(a, c)
 
 # https://www.ctcms.nist.gov/~knc6/jsmol/JVASP-11969.html
 # https://www.crystallography.net/cod/2106100.html
+
+# just picture
+# http://img.chem.ucl.ac.uk/sgp/large/194az1.htm
 x1_ni = 1/6
 species = ["Mg", "Mg", "Ni", "Ni", "Ni"]
 coords = [
     [0, 0, 0.094],        # Mg1 (4e)
     [1/3, 2/3, 0.8442],    # Mg2 (4f)
-    [1/3, 2/3, 12514],    # Ni1 (4f)
+    [1/3, 2/3, 0.12514],    # Ni1 (4f)
     [x1_ni, 2*x1_ni, 0.25], # Ni2 (6h)
     [0.5, 0, 0]           # Ni3 (6g)
 ]
@@ -77,8 +32,6 @@ coords = [
 # Ni3 Ni 0.16429 0.32858 0.25 1 0.0
 # Ni2 Ni 0.5 0 0 1 0.0
 
-
-
 structure = Structure.from_spacegroup(
     "P6_3/mmc",
     lattice,
@@ -88,12 +41,9 @@ structure = Structure.from_spacegroup(
 )
 
 print(structure)
-
-
 print("Unit cell atoms:", len(structure))
 
-demonstrate(structure, "C36 Laves phase")
-
+demonstrate(structure, name="C36 Laves phase (basic cell)", colors={"Mg":"red","Ni":"blue"})
 
 # суперячейка
 supercell = structure.copy()
@@ -102,21 +52,67 @@ supercell.make_supercell([2,2,2])
 atoms = AseAtomsAdaptor.get_atoms(supercell)
 print("Supercell atoms:", len(atoms))
 print("Supercell atoms:", len(supercell))
-demonstrate(supercell, "C36 Laves phase")
+demonstrate(supercell, name="C36 Laves phase (supercell)", colors={"Mg":"red","Ni":"blue"})
 
+
+os.makedirs("C36", exist_ok=True)
+os.makedirs("C36/in", exist_ok=True)
+os.makedirs("C36/xyz", exist_ok=True)
 
 structures = []
 
-for i in range(800):
-
+for i in range(1200):
     config = random_displacement(atoms)
     config = strain_cell(config)
-
+    config = random_swap(config)
+    config = vacancy_defect(config, 0.01)
     structures.append(config)
 
 
 print("Generated configurations:", len(structures))
 
+for i in range(1200):
+    config = random_displacement(atoms)
+    config = strain_cell(config)
+    config = random_swap(config)
+    config = vacancy_defect(config, 0.01)
+    structures.append(config)
+
+for idx, atoms_cfg in enumerate(structures):
+    pmg_struct = Structure(
+        lattice=atoms_cfg.get_cell(),
+        species=[a.symbol for a in atoms_cfg],
+        coords=atoms_cfg.get_scaled_positions()
+    )
+    pwinput = PWInput(
+        structure=pmg_struct,
+        pseudo={
+            "Mg":"Mg.rel-pbe-spnl-kjpaw_psl.1.0.0.UPF", 
+            "Ni": "Ni.pbe-spn-kjpaw_psl.1.0.0.UPF"},
+        control={
+            "calculation":"scf", 
+            "prefix":"laves_C36", 
+            "outdir":"./C36_out", 
+            "pseudo_dir":"./pseudo", 
+            "tstress": ".true.", 
+            "tprnfor": ".true."},
+        system={"ecutwfc":50, 
+                "ecutrho":400, 
+                "occupations": "smearing", 
+                "smearing": "mp", 
+                "degauss": 0.02},
+        electrons={"conv_thr":1e-8,
+                   "electron_maxstep": 200,
+                   "mixing_beta": 0.4,
+                   "mixing_mode": "plain",
+                   "diagonalization": 'david'},
+        kpoints_grid=(4,4,4)
+    )
+
+    filename = f'C36/in/laves_{idx:03d}.in'
+    pwinput.write_file(filename)
+    print("Создан QE input:", filename)
+
 
 for i, s in enumerate(structures):
-    write(f"C36/structure_{i}.xyz", s)
+    write(f"C36/xyz/structure_{i}.xyz", s)

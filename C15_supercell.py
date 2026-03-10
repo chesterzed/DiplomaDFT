@@ -1,51 +1,12 @@
-import numpy as np
+import os
 from pymatgen.core import Structure, Lattice
+from pymatgen.io.pwscf import PWInput
 from pymatgen.io.ase import AseAtomsAdaptor
 from ase.io import write
-
-import matplotlib.pyplot as plt
-
-
-def demonstrate(structure, name="C15 structure"):
-    coords = structure.cart_coords
-    species = [site.specie.symbol for site in structure]
-
-    colors = {"Mg":"red","Cu":"blue"}
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-
-    for i, element in enumerate(species):
-        ax.scatter(
-            coords[i][0],
-            coords[i][1],
-            coords[i][2],
-            color=colors[element],
-            s=80
-        )
-
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
-    ax.set_zlabel("Z")
-
-    plt.title(name)
-    plt.show()
-
-def random_displacement(atoms, amplitude=0.05):
-    new_atoms = atoms.copy()
-    displacement = amplitude * np.random.randn(len(atoms),3)
-    new_atoms.positions += displacement
-    return new_atoms
-
-def strain_cell(atoms, strain=0.02):
-    new_atoms = atoms.copy()
-    cell = new_atoms.get_cell()
-    deformation = np.eye(3) + strain * np.random.randn(3,3)
-    new_cell = cell @ deformation
-    new_atoms.set_cell(new_cell, scale_atoms=True)
-    return new_atoms
+from subfunctions import *
 
 
+# Генерация C15
 a = 7.1
 lattice = Lattice.cubic(a)
 
@@ -62,25 +23,57 @@ structure = Structure.from_spacegroup(
     coords
 )
 
-demonstrate(structure=structure)
+# Отрисовка
+demonstrate(structure=structure, name="C15 structure", colors={"Mg":"red","Cu":"blue"})
 
+# Создание супер ячейки
 supercell = structure.copy()
 supercell.make_supercell([2,2,2])
 print("super cell done")
 print(supercell)
 
+# Перевод в другой формат
 atoms = AseAtomsAdaptor.get_atoms(supercell)
 print("got atoms")
+print(atoms)
 
+# Создание конфигов (входного файла)
 structures = []
 
-for i in range(200):
+for i in range(1200):
     config = random_displacement(atoms)
     config = strain_cell(config)
+    config = random_swap(config)
+    config = vacancy_defect(config, 0.01)
     structures.append(config)
 
 print("config")
 
+os.makedirs("C15", exist_ok=True)
+os.makedirs("C15/in", exist_ok=True)
+os.makedirs("C15/xyz", exist_ok=True)
+
+
+for idx, atoms_cfg in enumerate(structures):
+    pmg_struct = Structure(
+        lattice=atoms_cfg.get_cell(),
+        species=[a.symbol for a in atoms_cfg],
+        coords=atoms_cfg.get_scaled_positions()
+    )
+    pwinput = PWInput(
+        structure=pmg_struct,
+        pseudo={"Mg":"Mg.rel-pbe-spnl-kjpaw_psl.1.0.0.UPF","Cu":"Cu.pbe-dn-kjpaw_psl.1.0.0.UPF"},
+        control={"calculation":"scf", "prefix":"laves_C15", "outdir":"./С15_out", "pseudo_dir":"./pseudo", "tstress": ".true.", "tprnfor": ".true."},
+        system={"ecutwfc":50, "ecutrho":400, "occupations": "smearing", "smearing": "mp", "degauss": 0.02},
+        electrons={"conv_thr":1e-8, "electron_maxstep": 200, "mixing_beta": 0.4, "mixing_mode": "plain", "diagonalization": 'david'},
+        kpoints_grid=(4,4,4)
+    )
+
+    filename = f'C15/in/laves_{idx:03d}.in'
+    pwinput.write_file(filename)
+    print("Создан QE input:", filename)
+
+
 for i, s in enumerate(structures):
     print(i, s)
-    write(f"C15/structure_{i}.xyz", s)
+    write(f"C15/xyz/structure_{i}.xyz", s)

@@ -1,7 +1,9 @@
-from ase.io import write
-from pymatgen.core import Lattice, Structure
+import os
+from pymatgen.core import Structure, Lattice
+from pymatgen.io.pwscf import PWInput
 from pymatgen.io.ase import AseAtomsAdaptor
-import matplotlib.pyplot as plt
+from ase.io import write
+from subfunctions import *
 
 
 # параметры решётки
@@ -29,31 +31,48 @@ structure = Structure.from_spacegroup(
     species,
     coords
 )
+demonstrate(structure, name="C14 Laves phase (12 atoms)", colors={"Mg":"red","Zn":"blue"})
+
 structure.make_supercell([2, 2, 2])
 print("Atoms in unit cell:", len(structure))
-
+atoms = AseAtomsAdaptor.get_atoms(structure)
 
 # визуализация
-atoms = AseAtomsAdaptor.get_atoms(structure)
-coords = atoms.get_positions()
-species = [atom.symbol for atom in atoms]
-
-colors = {"Mg":"red","Zn":"blue"}
-
-fig = plt.figure(figsize=(8,6))
-ax = fig.add_subplot(111, projection="3d")
-
-for i,s in enumerate(species):
-    ax.scatter(coords[i,0], coords[i,1], coords[i,2],
-               color=colors[s], s=120)
-
-ax.set_xlabel("X")
-ax.set_ylabel("Y")
-ax.set_zlabel("Z")
-
-plt.title("C14 Laves phase (12 atoms)")
-plt.show()
+demonstrate(atoms, name="C14 Laves phase (12 atoms)", colors={"Mg":"red","Zn":"blue"})
 
 # Сохранение структуры в файлы
-write("C14/C14_Laves.xyz", atoms)
-write("C14/C14_Laves.cif", atoms)
+os.makedirs("C14", exist_ok=True)
+os.makedirs("C14/in", exist_ok=True)
+os.makedirs("C14/xyz", exist_ok=True)
+
+structures = []
+
+for i in range(1200):
+    config = random_displacement(atoms)
+    config = strain_cell(config)
+    config = random_swap(config)
+    config = vacancy_defect(config, 0.01)
+    structures.append(config)
+
+for idx, atoms_cfg in enumerate(structures):
+    pmg_struct = Structure(
+        lattice=atoms_cfg.get_cell(),
+        species=[a.symbol for a in atoms_cfg],
+        coords=atoms_cfg.get_scaled_positions()
+    )
+    pwinput = PWInput(
+        structure=pmg_struct,
+        pseudo={"Mg":"Mg.rel-pbe-spnl-kjpaw_psl.1.0.0.UPF", "Zn":"Zn.rel-pbe-dnl-kjpaw_psl.1.0.0.UPF"},
+        control={"calculation":"scf", "prefix":"laves_C14", "outdir":"./C14_out", "pseudo_dir":"./pseudo", "tstress": ".true.", "tprnfor": ".true."},
+        system={"ecutwfc":50, "ecutrho":400, "occupations": "smearing", "smearing": "mp", "degauss": 0.02},
+        electrons={"conv_thr":1e-8, "electron_maxstep": 200, "mixing_beta": 0.4, "mixing_mode": "plain", "diagonalization": 'david'},
+        kpoints_grid=(4,4,4)
+    )
+
+    filename = f'C14/in/laves_{idx:03d}.in'
+    pwinput.write_file(filename)
+    print("Создан QE input:", filename)
+
+
+for i, s in enumerate(structures):
+    write(f"C14/xyz/structure_{i}.xyz", s)
