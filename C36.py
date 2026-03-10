@@ -11,11 +11,6 @@ c = 15.9
 
 lattice = Lattice.hexagonal(a, c)
 
-# https://www.ctcms.nist.gov/~knc6/jsmol/JVASP-11969.html
-# https://www.crystallography.net/cod/2106100.html
-
-# just picture
-# http://img.chem.ucl.ac.uk/sgp/large/194az1.htm
 x1_ni = 1/6
 species = ["Mg", "Mg", "Ni", "Ni", "Ni"]
 coords = [
