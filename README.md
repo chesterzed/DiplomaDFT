@@ -4,10 +4,10 @@
 ## links
 
 #### Pseudo potentials:
-- https://pseudopotentials.quantum-espresso.org/legacy_tables/ps-library/zn
-- https://pseudopotentials.quantum-espresso.org/legacy_tables/ps-library/cu
-- https://pseudopotentials.quantum-espresso.org/legacy_tables/ps-library/ni
-- https://pseudopotentials.quantum-espresso.org/legacy_tables/ps-library/mg
+- Zn.rel-pbe-dnl-kjpaw_psl.1.0.0.UPF https://pseudopotentials.quantum-espresso.org/legacy_tables/ps-library/zn
+- Cu.rel-pbesol-spn-kjpaw_psl.1.0.0.UPF https://pseudopotentials.quantum-espresso.org/legacy_tables/ps-library/cu
+- Ni.rel-pbesol-spn-kjpaw_psl.1.0.0.UPF https://pseudopotentials.quantum-espresso.org/legacy_tables/ps-library/ni
+- Mg.rel-pbesol-spnl-kjpaw_psl.1.0.0.UPF https://pseudopotentials.quantum-espresso.org/legacy_tables/ps-library/mg
 
 #### .cif files for (Space-group :P6_3/mmc, 194; C14; MgNi2)
 - https://www.ctcms.nist.gov/~knc6/jsmol/JVASP-11969.html
