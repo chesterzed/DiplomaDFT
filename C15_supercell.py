@@ -62,7 +62,7 @@ for idx, atoms_cfg in enumerate(structures):
     )
     pwinput = PWInput(
         structure=pmg_struct,
-        pseudo={"Mg":"Mg.rel-pbe-spnl-kjpaw_psl.1.0.0.UPF","Cu":"Cu.pbe-dn-kjpaw_psl.1.0.0.UPF"},
+        pseudo={"Mg":"Mg.rel-pbesol-spnl-kjpaw_psl.1.0.0.UPF","Cu":"Cu.rel-pbesol-spn-kjpaw_psl.1.0.0.UPF"},
         control={"calculation":"scf", "prefix":"laves_C15", "outdir":"./С15_out", "pseudo_dir":"./pseudo", "tstress": ".true.", "tprnfor": ".true."},
         system={"ecutwfc":50, "ecutrho":400, "occupations": "smearing", "smearing": "mp", "degauss": 0.02},
         electrons={"conv_thr":1e-8, "electron_maxstep": 200, "mixing_beta": 0.4, "mixing_mode": "plain", "diagonalization": 'david'},

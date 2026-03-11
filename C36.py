@@ -82,8 +82,8 @@ for idx, atoms_cfg in enumerate(structures):
     pwinput = PWInput(
         structure=pmg_struct,
         pseudo={
-            "Mg":"Mg.rel-pbe-spnl-kjpaw_psl.1.0.0.UPF", 
-            "Ni": "Ni.pbe-spn-kjpaw_psl.1.0.0.UPF"},
+            "Mg":"Mg.rel-pbesol-spnl-kjpaw_psl.1.0.0.UPF", 
+            "Ni": "Ni.rel-pbesol-spn-kjpaw_psl.1.0.0.UPF"},
         control={
             "calculation":"scf", 
             "prefix":"laves_C36", 
