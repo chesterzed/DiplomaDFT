@@ -1,7 +1,7 @@
 # DilomaDFT
 
 
-## lins
+## links
 
 #### Pseudo potentials:
 - https://pseudopotentials.quantum-espresso.org/legacy_tables/ps-library/zn
@@ -11,7 +11,7 @@
 
 #### .cif files
 - https://www.ctcms.nist.gov/~knc6/jsmol/JVASP-11969.html
-- https://www.crystallography.net/cod/2106100.html
+- C14 MgNi_2 https://www.crystallography.net/cod/2106100.html
 
 just picture:
 - http://img.chem.ucl.ac.uk/sgp/large/194az1.htm
