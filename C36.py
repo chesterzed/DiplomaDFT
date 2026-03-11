@@ -95,13 +95,17 @@ for idx, atoms_cfg in enumerate(structures):
                 "ecutrho":400, 
                 "occupations": "smearing", 
                 "smearing": "mp", 
-                "degauss": 0.02},
+                "degauss": 0.02,
+                "lspinorb": True,
+                "noncolin": True},
         electrons={"conv_thr":1e-8,
                    "electron_maxstep": 200,
                    "mixing_beta": 0.4,
                    "mixing_mode": "plain",
                    "diagonalization": 'david'},
-        kpoints_grid=(4,4,4)
+        kpoints_grid=(4,4,4),
+        ions=None,
+        cell=None
     )
 
     filename = f'C36/in/laves_{idx:03d}.in'

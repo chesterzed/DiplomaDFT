@@ -36,6 +36,7 @@ print(supercell)
 atoms = AseAtomsAdaptor.get_atoms(supercell)
 print("got atoms")
 print(atoms)
+demonstrate(structure=atoms, name="C15 structure (supercell)", colors={"Mg":"red","Cu":"blue"})
 
 # Создание конфигов (входного файла)
 structures = []
@@ -64,15 +65,16 @@ for idx, atoms_cfg in enumerate(structures):
         structure=pmg_struct,
         pseudo={"Mg":"Mg.rel-pbesol-spnl-kjpaw_psl.1.0.0.UPF","Cu":"Cu.rel-pbesol-spn-kjpaw_psl.1.0.0.UPF"},
         control={"calculation":"scf", "prefix":"laves_C15", "outdir":"./С15_out", "pseudo_dir":"./pseudo", "tstress": ".true.", "tprnfor": ".true."},
-        system={"ecutwfc":50, "ecutrho":400, "occupations": "smearing", "smearing": "mp", "degauss": 0.02},
+        system={"ecutwfc":50, "ecutrho":400, "occupations": "smearing", "smearing": "mp", "degauss": 0.02, "lspinorb": True, "noncolin": True},
         electrons={"conv_thr":1e-8, "electron_maxstep": 200, "mixing_beta": 0.4, "mixing_mode": "plain", "diagonalization": 'david'},
-        kpoints_grid=(4,4,4)
+        kpoints_grid=(4,4,4),
+        ions=None,
+        cell=None
     )
 
     filename = f'C15/in/laves_{idx:03d}.in'
     pwinput.write_file(filename)
     print("Создан QE input:", filename)
-
 
 for i, s in enumerate(structures):
     print(i, s)

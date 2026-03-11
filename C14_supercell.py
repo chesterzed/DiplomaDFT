@@ -38,7 +38,7 @@ print("Atoms in unit cell:", len(structure))
 atoms = AseAtomsAdaptor.get_atoms(structure)
 
 # визуализация
-demonstrate(atoms, name="C14 Laves phase (12 atoms)", colors={"Mg":"red","Zn":"blue"})
+demonstrate(atoms, name="C14 Laves phase (96 atoms)", colors={"Mg":"red","Zn":"blue"})
 
 # Сохранение структуры в файлы
 os.makedirs("C14", exist_ok=True)
