@@ -63,10 +63,12 @@ for idx, atoms_cfg in enumerate(structures):
     pwinput = PWInput(
         structure=pmg_struct,
         pseudo={"Mg":"Mg.rel-pbe-spnl-kjpaw_psl.1.0.0.UPF", "Zn":"Zn.rel-pbe-dnl-kjpaw_psl.1.0.0.UPF"},
-        control={"calculation":"scf", "prefix":"laves_C14", "outdir":"./C14_out", "pseudo_dir":"./pseudo", "tstress": ".true.", "tprnfor": ".true."},
-        system={"ecutwfc":50, "ecutrho":400, "occupations": "smearing", "smearing": "mp", "degauss": 0.02},
+        control={"calculation":"scf", "prefix":"laves_C14", "outdir":"./C14_out", "pseudo_dir":"./pseudo", "tstress": True, "tprnfor": True},
+        system={"ecutwfc":40, "ecutrho":240, "occupations": "smearing", "smearing": "mp", "degauss": 0.02, "lspinorb": True, "noncolin": True},
         electrons={"conv_thr":1e-8, "electron_maxstep": 200, "mixing_beta": 0.4, "mixing_mode": "plain", "diagonalization": 'david'},
-        kpoints_grid=(4,4,4)
+        kpoints_grid=(3,3,3),
+        ions=None,
+        cell=None
     )
 
     filename = f'C14/in/laves_{idx:03d}.in'
