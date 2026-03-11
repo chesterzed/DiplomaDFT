@@ -9,9 +9,9 @@
 - https://pseudopotentials.quantum-espresso.org/legacy_tables/ps-library/ni
 - https://pseudopotentials.quantum-espresso.org/legacy_tables/ps-library/mg
 
-#### .cif files
+#### .cif files for (Space-group :P6_3/mmc, 194; C14; MgNi2)
 - https://www.ctcms.nist.gov/~knc6/jsmol/JVASP-11969.html
-- C14 MgNi2 https://www.crystallography.net/cod/2106100.html
+- https://www.crystallography.net/cod/2106100.html
 
 just picture:
 - http://img.chem.ucl.ac.uk/sgp/large/194az1.htm
