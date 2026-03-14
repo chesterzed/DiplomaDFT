@@ -10,24 +10,29 @@ def V(a, c):
     return (sqrt(3)/2) * a**2 * c
 
 
-def generateConfig(a, c, coords, species, path, id):
+def generateConfig(a, c, crds, spcs, path, idx):
+    print('lattice', end=', ')
     lattice = Lattice.hexagonal(a, c)
+    print('structure', end=', ')
     structure = Structure.from_spacegroup(
         "P6_3/mmc",
         lattice,
-        species,
-        coords,
+        spcs,
+        crds,
         coords_are_cartesian=False
     )
+    print('atoms', end=', ')
     atoms = AseAtomsAdaptor.get_atoms(structure)
     os.makedirs(f"{path}", exist_ok=True)
     os.makedirs(f"{path}/in", exist_ok=True)
 
+    print('pmg_struct', end=', ')
     pmg_struct = Structure(
         lattice=atoms.get_cell(),
         species=[a.symbol for a in atoms],
         coords=atoms.get_scaled_positions()
     )
+    print('pwinput', end=', ')
     pwinput = PWInput(
         structure=pmg_struct,
         pseudo={
@@ -58,12 +63,13 @@ def generateConfig(a, c, coords, species, path, id):
         ions=None,
         cell=None
     )
-
-    filename = f'{path}/in/laves_{id:03d}.in'
+    print('done')
+    filename = f'{path}/in/laves_{idx:03d}.in'
     pwinput.write_file(filename)
     print("Создан QE input:", filename)
 
 
+print('base vars init')
 x1_ni = 1/6
 species = ["Mg", "Mg", "Ni", "Ni", "Ni"]
 coords = [
@@ -82,6 +88,8 @@ P = 1000000
 r3 = sqrt(3)
 a2 = a0*a0
 while P < 0.1:
+    print('loop started')
+    print('lists generation')
     V0 = V(a0, c0)
     a_list = [sqrt((2*V0*k)/(r3 * c0)) for k in k_list]
     c_list = [(2*V0*k)/(r3 * a2) for k in k_list]
@@ -89,11 +97,18 @@ while P < 0.1:
     iso_a_list = [np.cbrt((2*V0*k)/(r3*f)) for k in k_list]
     iso_list = [(a, iso_a_list[i] * f) for i, a in enumerate(iso_a_list)]
 
+    print('config generation')
+    print('c const, a list')
     for i, a in enumerate(a_list):
+        print(k_list[i], end=' ')
         generateConfig(a, c0, coords, species, folderName, i)
+    print('\nc list, a const')
     for i, c in enumerate(c_list):
+        print(k_list[i], end=' ')
         generateConfig(a0, c, coords, species, folderName, i)
+    print('\nc, a iso')
     for i, pair in enumerate(iso_list):
+        print(k_list[i], end=' ')
         generateConfig(pair[i], pair[i], coords, species, folderName, i)
 
 

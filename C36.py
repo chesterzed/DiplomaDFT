@@ -56,14 +56,6 @@ os.makedirs("C36/xyz", exist_ok=True)
 
 structures = []
 
-for i in range(1200):
-    config = random_displacement(atoms)
-    config = strain_cell(config)
-    config = random_swap(config)
-    config = vacancy_defect(config, 0.01)
-    structures.append(config)
-
-
 print("Generated configurations:", len(structures))
 
 for i in range(1200):
@@ -82,7 +74,7 @@ for idx, atoms_cfg in enumerate(structures):
     pwinput = PWInput(
         structure=pmg_struct,
         pseudo={
-            "Mg":"Mg.rel-pbesol-spnl-kjpaw_psl.1.0.0.UPF", 
+            "Mg": "Mg.rel-pbesol-spnl-kjpaw_psl.1.0.0.UPF",
             "Ni": "Ni.rel-pbesol-spn-kjpaw_psl.1.0.0.UPF"},
         control={
             "calculation":"scf", 
@@ -103,7 +95,7 @@ for idx, atoms_cfg in enumerate(structures):
                    "mixing_beta": 0.4,
                    "mixing_mode": "plain",
                    "diagonalization": 'david'},
-        kpoints_grid=(4,4,4),
+        kpoints_grid=(4,4,1),
         ions=None,
         cell=None
     )
