@@ -87,7 +87,7 @@ k_list = [i/100 for i in range(80, 121, 2)]
 P = 1000000
 r3 = sqrt(3)
 a2 = a0*a0
-while P < 0.1:
+while P > 0.1:
     print('loop started')
     print('lists generation')
     V0 = V(a0, c0)
