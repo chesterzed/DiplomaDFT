@@ -10,7 +10,7 @@ def V(a, c):
     return (sqrt(3)/2) * a**2 * c
 
 
-def generateConfig(a, c, crds, spcs, path, idx):
+def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
     print('lattice', end=', ')
     lattice = Lattice.hexagonal(a, c)
     print('structure', end=', ')
@@ -64,7 +64,7 @@ def generateConfig(a, c, crds, spcs, path, idx):
         cell=None
     )
     print('done')
-    filename = f'{path}/in/laves_{idx:03d}.in'
+    filename = f'{path}/in/{name}_{idx:03d}.in'
     pwinput.write_file(filename)
     print("Создан QE input:", filename)
 
@@ -95,22 +95,24 @@ while P > 0.1:
     c_list = [(2*V0*k)/(r3 * a2) for k in k_list]
     f = c0 / a0
     iso_a_list = [np.cbrt((2*V0*k)/(r3*f)) for k in k_list]
-    iso_list = [(a, iso_a_list[i] * f) for i, a in enumerate(iso_a_list)]
+    iso_list = [(float(a), float(iso_a_list[i] * f)) for i, a in enumerate(iso_a_list)]
+
+    print(iso_list)
 
     print('config generation')
     print('c const, a list')
     for i, a in enumerate(a_list):
         print(k_list[i], end=' ')
-        generateConfig(a, c0, coords, species, folderName, i)
+        generateConfig(a, c0, coords, species, folderName, i, "a_const")
     print('\nc list, a const')
     for i, c in enumerate(c_list):
         print(k_list[i], end=' ')
-        generateConfig(a0, c, coords, species, folderName, i)
+        generateConfig(a0, c, coords, species, folderName, i, "c_const")
     print('\nc, a iso')
     for i, pair in enumerate(iso_list):
         print(k_list[i], end=' ')
-        generateConfig(pair[i], pair[i], coords, species, folderName, i)
-
+        generateConfig(pair[i], pair[i], coords, species, folderName, i, "iso")
+    P = 0
 
 
 
