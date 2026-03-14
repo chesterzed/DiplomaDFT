@@ -111,7 +111,7 @@ while P > 0.1:
     print('\nc, a iso')
     for i, pair in enumerate(iso_list):
         print(k_list[i], end=' ')
-        generateConfig(pair[i], pair[i], coords, species, folderName, i, "iso")
+        generateConfig(pair[0], pair[1], coords, species, folderName, i, "iso")
     P = 0
 
 
