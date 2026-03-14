@@ -1,0 +1,103 @@
+import os
+from math import sqrt
+import numpy as np
+from pymatgen.core import Lattice, Structure
+from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.io.pwscf import PWInput
+
+
+def V(a, c):
+    return (sqrt(3)/2) * a**2 * c
+
+
+def generateConfig(a, c, coords, species, path, id):
+    lattice = Lattice.hexagonal(a, c)
+    structure = Structure.from_spacegroup(
+        "P6_3/mmc",
+        lattice,
+        species,
+        coords,
+        coords_are_cartesian=False
+    )
+    atoms = AseAtomsAdaptor.get_atoms(structure)
+    os.makedirs(f"{path}", exist_ok=True)
+    os.makedirs(f"{path}/in", exist_ok=True)
+
+    pmg_struct = Structure(
+        lattice=atoms.get_cell(),
+        species=[a.symbol for a in atoms],
+        coords=atoms.get_scaled_positions()
+    )
+    pwinput = PWInput(
+        structure=pmg_struct,
+        pseudo={
+            "Mg": "Mg.rel-pbesol-spnl-kjpaw_psl.1.0.0.UPF",
+            "Ni": "Ni.rel-pbesol-spn-kjpaw_psl.1.0.0.UPF"},
+        control={
+            "calculation": "scf",
+            "prefix": "laves_C36",
+            "outdir": "./C36_out",
+            "pseudo_dir": "./pseudo",
+            "tstress": ".true.",
+            "tprnfor": ".true."},
+        system={"ecutwfc": 50,
+                "ecutrho": 400,
+                "occupations": "smearing",
+                "smearing": "mp",
+                "degauss": 0.02,
+                "lspinorb": True,
+                "noncolin": True,
+                "calculation": "relax",
+                "forc_conv_thr": 0.001,},
+        electrons={"conv_thr": 1e-8,
+                   "electron_maxstep": 200,
+                   "mixing_beta": 0.4,
+                   "mixing_mode": "plain",
+                   "diagonalization": 'david'},
+        kpoints_grid=(4, 4, 1),
+        ions=None,
+        cell=None
+    )
+
+    filename = f'{path}/in/laves_{id:03d}.in'
+    pwinput.write_file(filename)
+    print("Создан QE input:", filename)
+
+
+x1_ni = 1/6
+species = ["Mg", "Mg", "Ni", "Ni", "Ni"]
+coords = [
+    [0, 0, 0.094],            # Mg1 (4e)
+    [1/3, 2/3, 0.8442],       # Mg2 (4f)
+    [1/3, 2/3, 0.12514],      # Ni1 (4f)
+    [x1_ni, 2*x1_ni, 0.25],   # Ni2 (6h)
+    [0.5, 0, 0]               # Ni3 (6g)
+]
+
+folderName = "ACOptimization"
+a0 = 4.824
+c0 = 15.826
+k_list = [i/100 for i in range(80, 121, 2)]
+P = 1000000
+r3 = sqrt(3)
+a2 = a0*a0
+while P < 0.1:
+    V0 = V(a0, c0)
+    a_list = [sqrt((2*V0*k)/(r3 * c0)) for k in k_list]
+    c_list = [(2*V0*k)/(r3 * a2) for k in k_list]
+    f = c0 / a0
+    iso_a_list = [np.cbrt((2*V0*k)/(r3*f)) for k in k_list]
+    iso_list = [(a, iso_a_list[i] * f) for i, a in enumerate(iso_a_list)]
+
+    for i, a in enumerate(a_list):
+        generateConfig(a, c0, coords, species, folderName, i)
+    for i, c in enumerate(c_list):
+        generateConfig(a0, c, coords, species, folderName, i)
+    for i, pair in enumerate(iso_list):
+        generateConfig(pair[i], pair[i], coords, species, folderName, i)
+
+
+
+
+
+
