@@ -25,6 +25,7 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
     atoms = AseAtomsAdaptor.get_atoms(structure)
     os.makedirs(f"{path}", exist_ok=True)
     os.makedirs(f"{path}/in", exist_ok=True)
+    os.makedirs(f"{path}/out", exist_ok=True)
 
     print('pmg_struct', end=', ')
     pmg_struct = Structure(
@@ -39,29 +40,36 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
             "Mg": "Mg.rel-pbesol-spnl-kjpaw_psl.1.0.0.UPF",
             "Ni": "Ni.rel-pbesol-spn-kjpaw_psl.1.0.0.UPF"},
         control={
-            "calculation": "scf",
-            "prefix": "laves_C36",
-            "outdir": "./C36_out",
+            "title": 'Optimisation A C for MgNi2',
+            "calculation": "vc-relax",
+            "forc_conv_thr": 0.001,
+            "prefix": f"{name}",
+            "outdir": f"./{path}/out",
             "pseudo_dir": "./pseudo",
             "tstress": ".true.",
             "tprnfor": ".true."},
         system={"ecutwfc": 50,
                 "ecutrho": 400,
                 "occupations": "smearing",
-                "smearing": "mp",
+                "smearing": "m-v",
                 "degauss": 0.02,
                 "lspinorb": True,
-                "noncolin": True,
-                "calculation": "relax",
-                "forc_conv_thr": 0.001,},
+                "noncolin": True,},
         electrons={"conv_thr": 1e-8,
-                   "electron_maxstep": 200,
-                   "mixing_beta": 0.4,
-                   "mixing_mode": "plain",
+                   "electron_maxstep": 120,
+                   "mixing_beta": 0.1,
+                   "mixing_ndim": 15,
+                   "mixing_mode": "local-TF",
                    "diagonalization": 'david'},
         kpoints_grid=(4, 4, 1),
-        ions=None,
-        cell=None
+        ions={
+            "ion_dynamics":'bfgs',
+
+              },
+        cell={
+            "cell_dynamics": 'bfgs',
+            "cell_dofree": 'all',
+            },
     )
     print('done')
     filename = f'{path}/in/{name}_{idx:03d}.in'
