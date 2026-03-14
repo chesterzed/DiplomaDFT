@@ -69,12 +69,12 @@ for idx, atoms_cfg in enumerate(structures):
         kpoints_grid=(3,3,3),
         ions=None,
         cell=None
-    )
+   )
 
-    filename = f'C14/in/laves_{idx:03d}.in'
-    pwinput.write_file(filename)
-    print("Создан QE input:", filename)
+#    filename = f'C14/in/laves_{idx:03d}.in'
+#    pwinput.write_file(filename)
+#    print("Создан QE input:", filename)
 
 
-for i, s in enumerate(structures):
-    write(f"C14/xyz/structure_{i}.xyz", s)
+#for i, s in enumerate(structures):
+#    write(f"C14/xyz/structure_{i}.xyz", s)
