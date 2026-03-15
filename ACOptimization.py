@@ -21,7 +21,7 @@ def run_qe_calculation(input_file, output_file, np=4):
                                 shell=True,
                                 capture_output=True,
                                 text=True,
-                                timeout=18000)
+                                timeout=7100)
 
         print(f"Finish time: {datetime.now()}")
         print(f"Exit code: {result.returncode}")
@@ -32,7 +32,7 @@ def run_qe_calculation(input_file, output_file, np=4):
         return True
 
     except subprocess.TimeoutExpired:
-        print("Timeout: more than 5 hours")
+        print("Timeout: more than 7100 seconds (~1h 58m)")
         return False
     except Exception as e:
         print(f"Exception: {e}")
@@ -75,7 +75,7 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
         },
         control={
             "title": 'Optimisation A C for MgNi2',
-            "calculation": "relax",
+            "calculation": "vc-relax",
             "forc_conv_thr": 0.001,
             "etot_conv_thr": 0.00001,
             "prefix": f"{name}",
@@ -99,7 +99,7 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
             "conv_thr": 1e-8,
             "electron_maxstep": 120,
             "mixing_beta": 0.1,
-            "mixing_ndim": 20,
+            "mixing_ndim": 30,
             "mixing_mode": "local-TF",
             "diagonalization": 'david'
         },
@@ -121,6 +121,21 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
     filename = f'{path}/in/{name}_{idx:03d}.in'
     pwinput.write_file(filename)
     print("Создан QE input:", filename)
+
+
+# def get_energies_from_file(output_path):
+#     energies = dict()
+#     pathPattern = f"{output_path}/*_*.out"
+#     for file in glob.glob(pathPattern):
+#         with open(file, 'r') as f:
+#             content = f.read()
+#         pattern = r'!    total energy\s+=\s+([-\d.]+) Ry'
+#         match = re.search(pattern, content)
+
+
+
+
+##########################################################################################
 
 
 print('base vars init')
@@ -162,15 +177,14 @@ while P > 0.1:
     for i, a in enumerate(a_list):
         print(k_list[i], end=' ')
         generateConfig(a, c0, coords, species, folderName, i, "a_const")
-        break
     print('\nc list, a const')
-    # for i, c in enumerate(c_list):
-    #     print(k_list[i], end=' ')
-    #     generateConfig(a0, c, coords, species, folderName, i, "c_const")
+    for i, c in enumerate(c_list):
+        print(k_list[i], end=' ')
+        generateConfig(a0, c, coords, species, folderName, i, "c_const")
     print('\nc, a iso')
-    # for i, pair in enumerate(iso_list):
-    #     print(k_list[i], end=' ')
-    #     generateConfig(pair[0], pair[1], coords, species, folderName, i, "iso")
+    for i, pair in enumerate(iso_list):
+        print(k_list[i], end=' ')
+        generateConfig(pair[0], pair[1], coords, species, folderName, i, "iso")
 
     P = 0
 
@@ -179,7 +193,6 @@ while P > 0.1:
         base_name = os.path.basename(in_file).replace('.in', '.out')
         out_file = f"{output_dir}/{base_name}"
         run_qe_calculation(in_file, out_file, np=4)
-        break
 
     print('getting energies from file')
     print("drawing diagrams")
