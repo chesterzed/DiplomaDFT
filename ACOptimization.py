@@ -1,9 +1,42 @@
+import subprocess
 import os
+from datetime import datetime
 from math import sqrt
 import numpy as np
 from pymatgen.core import Lattice, Structure
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.pwscf import PWInput
+
+import glob
+
+
+def run_qe_calculation(input_file, output_file, np=4):
+    cmd = f"mpirun -np {np} pw.x -inp {input_file} > {output_file}"
+
+    print(f"Start time: {datetime.now()}")
+    print(f"Filename: {input_file}")
+    print(cmd)
+    try:
+        result = subprocess.run(cmd,
+                                shell=True,
+                                capture_output=True,
+                                text=True,
+                                timeout=18000)
+
+        print(f"Finish time: {datetime.now()}")
+        print(f"Exit code: {result.returncode}")
+
+        if result.returncode != 0:
+            print(f"Error code: {result.stderr}")
+            return False
+        return True
+
+    except subprocess.TimeoutExpired:
+        print("Timeout: more than 5 hours")
+        return False
+    except Exception as e:
+        print(f"Exception: {e}")
+        return False
 
 
 def V(a, c):
@@ -88,6 +121,9 @@ coords = [
     [0.5, 0, 0]               # Ni3 (6g)
 ]
 
+
+input_dir = "ACOptimization/in"
+output_dir = "ACOptimization/out"
 folderName = "ACOptimization"
 a0 = 4.824
 c0 = 15.826
@@ -95,6 +131,7 @@ k_list = [i/100 for i in range(80, 121, 2)]
 P = 1000000
 r3 = sqrt(3)
 a2 = a0*a0
+
 while P > 0.1:
     print('loop started')
     print('lists generation')
@@ -120,9 +157,24 @@ while P > 0.1:
     for i, pair in enumerate(iso_list):
         print(k_list[i], end=' ')
         generateConfig(pair[0], pair[1], coords, species, folderName, i, "iso")
+
     P = 0
 
+    print('DFT energies')
+    for in_file in glob.glob(f"{input_dir}/*.in"):
+        base_name = os.path.basename(in_file).replace('.in', '.out')
+        out_file = f"{output_dir}/{base_name}"
+        run_qe_calculation(in_file, out_file, np=4)
 
+    print("printing diagrams")
+    print("saving diagrams")
 
+    print("making polynomials")
+    print("looking for minimum")
+    print("getting derivative")
+
+    print(f"Comparing ") # todo: add comparisons into output
+    print("Updating P")
+    print(f"Looking for new average point")
 
 
