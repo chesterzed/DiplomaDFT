@@ -71,7 +71,8 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
         structure=pmg_struct,
         pseudo={
             "Mg": "Mg.rel-pbesol-spnl-kjpaw_psl.1.0.0.UPF",
-            "Ni": "Ni.rel-pbesol-spn-kjpaw_psl.1.0.0.UPF"},
+            "Ni": "Ni.rel-pbesol-spn-kjpaw_psl.1.0.0.UPF"
+        },
         control={
             "title": 'Optimisation A C for MgNi2',
             "calculation": "relax",
@@ -82,32 +83,40 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
             "pseudo_dir": "./pseudo",
             # "tstress": True,
             # "tprnfor": True,
-            "wf_collect": False},
+            "wf_collect": False
+        },
         system={
-            "ibrav": 4,
-            "celldm(1)": a,
-            "celldm(3)": c/a,
+            "ibrav": 0,
             "ecutwfc": 50,
             "ecutrho": 400,
             "occupations": "smearing",
             "smearing": "m-v",
             "degauss": 0.02,
             "lspinorb": True,
-            "noncolin": True,},
-        electrons={"conv_thr": 1e-8,
-                   "electron_maxstep": 120,
-                   "mixing_beta": 0.4,
-                   "mixing_ndim": 15,
-                   "mixing_mode": "plain",
-                   "diagonalization": 'david'},
+            "noncolin": True,
+        },
+        electrons={
+            "conv_thr": 1e-8,
+            "electron_maxstep": 120,
+            "mixing_beta": 0.4,
+            "mixing_ndim": 15,
+            "mixing_mode": "plain",
+            "diagonalization": 'david'
+        },
         kpoints_grid=(3, 3, 1),
         ions={
             "ion_dynamics":'bfgs',
-              },
-        cell=None,
+            "upscale": 60.0,
+            "trust_radius_max": 0.05,
+            "trust_radius_min": 0.001,
+        },
+        cell={
+            "cell_dynamics": 'bfgs',
+            "cell_dofree": 'all',
+            "press_conv_thr": 0.01,
+            "press": 0.0,
+        },
     )
-    pwinput.cell_parameters = None
-    pwinput.cell = None
     print('done')
     filename = f'{path}/in/{name}_{idx:03d}.in'
     pwinput.write_file(filename)
