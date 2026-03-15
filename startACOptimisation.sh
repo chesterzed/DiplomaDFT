@@ -2,4 +2,6 @@
 
 python ACOptimization.py
 
-mpirun -np 4 pw.x -inp ACOptimization/in/laves_000.in > ACOptimization/out/laves_000.out
+for i in ACOptimization/in/*.in; do
+    mpirun -np 4 pw.x -inp "$i" > "ACOptimization/out/$(basename "${i%.in}.out")"
+done
