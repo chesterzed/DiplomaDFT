@@ -47,7 +47,8 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
             "outdir": f"./{path}/out",
             "pseudo_dir": "./pseudo",
             "tstress": ".true.",
-            "tprnfor": ".true."},
+            "tprnfor": ".true.",
+            "wf_collect": False},
         system={"ecutwfc": 50,
                 "ecutrho": 400,
                 "occupations": "smearing",
@@ -64,7 +65,6 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
         kpoints_grid=(4, 4, 1),
         ions={
             "ion_dynamics":'bfgs',
-
               },
         cell={
             "cell_dynamics": 'bfgs',
