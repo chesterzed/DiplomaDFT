@@ -84,7 +84,7 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
             # "tprnfor": True,
             "wf_collect": False},
         system={
-            "ibrav": 4,
+            "ibrav": 0,
             "celldm(1)": a,
             "celldm(3)": c/a,
             "ecutwfc": 50,
@@ -104,10 +104,7 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
         ions={
             "ion_dynamics":'bfgs',
               },
-        cell={
-            "cell_dynamics": 'bfgs',
-            "cell_dofree": 'all',
-            },
+        cell=None,
     )
     print('done')
     filename = f'{path}/in/{name}_{idx:03d}.in'
@@ -154,14 +151,15 @@ while P > 0.1:
     for i, a in enumerate(a_list):
         print(k_list[i], end=' ')
         generateConfig(a, c0, coords, species, folderName, i, "a_const")
+        break
     print('\nc list, a const')
-    for i, c in enumerate(c_list):
-        print(k_list[i], end=' ')
-        generateConfig(a0, c, coords, species, folderName, i, "c_const")
+    # for i, c in enumerate(c_list):
+    #     print(k_list[i], end=' ')
+    #     generateConfig(a0, c, coords, species, folderName, i, "c_const")
     print('\nc, a iso')
-    for i, pair in enumerate(iso_list):
-        print(k_list[i], end=' ')
-        generateConfig(pair[0], pair[1], coords, species, folderName, i, "iso")
+    # for i, pair in enumerate(iso_list):
+    #     print(k_list[i], end=' ')
+    #     generateConfig(pair[0], pair[1], coords, species, folderName, i, "iso")
 
     P = 0
     break
@@ -171,6 +169,7 @@ while P > 0.1:
         base_name = os.path.basename(in_file).replace('.in', '.out')
         out_file = f"{output_dir}/{base_name}"
         run_qe_calculation(in_file, out_file, np=4)
+        break
 
     print('getting energies from file')
     print("drawing diagrams")
