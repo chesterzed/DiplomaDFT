@@ -164,7 +164,6 @@ while P > 0.1:
     #     generateConfig(pair[0], pair[1], coords, species, folderName, i, "iso")
 
     P = 0
-    break
 
     print('DFT energies')
     for in_file in glob.glob(f"{input_dir}/*.in"):
