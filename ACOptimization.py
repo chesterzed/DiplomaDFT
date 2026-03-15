@@ -106,6 +106,8 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
               },
         cell=None,
     )
+    pwinput.cell_parameters = None
+    pwinput.cell = None
     print('done')
     filename = f'{path}/in/{name}_{idx:03d}.in'
     pwinput.write_file(filename)
