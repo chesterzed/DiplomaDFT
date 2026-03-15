@@ -84,7 +84,7 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
             # "tprnfor": True,
             "wf_collect": False},
         system={
-            "ibrav": 0,
+            "ibrav": 4,
             "celldm(1)": a,
             "celldm(3)": c/a,
             "ecutwfc": 50,
@@ -164,6 +164,7 @@ while P > 0.1:
     #     generateConfig(pair[0], pair[1], coords, species, folderName, i, "iso")
 
     P = 0
+    break
 
     print('DFT energies')
     for in_file in glob.glob(f"{input_dir}/*.in"):
