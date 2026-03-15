@@ -18,3 +18,6 @@ just picture:
 
 ### install Quantum Espresson on linux ubuntu 22.04
 - https://qe-dft.readthedocs.io/en/latest/setup/install/
+
+### PW Input documentation
+- https://www.quantum-espresso.org/Doc/INPUT_PW.html

@@ -74,28 +74,33 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
             "Ni": "Ni.rel-pbesol-spn-kjpaw_psl.1.0.0.UPF"},
         control={
             "title": 'Optimisation A C for MgNi2',
-            "calculation": "vc-relax",
+            "calculation": "relax",
             "forc_conv_thr": 0.001,
+            "etot_conv_thr": 0.00001,
             "prefix": f"{name}",
             "outdir": f"./{path}/out",
             "pseudo_dir": "./pseudo",
-            "tstress": True,
-            "tprnfor": True,
+            # "tstress": True,
+            # "tprnfor": True,
             "wf_collect": False},
-        system={"ecutwfc": 50,
-                "ecutrho": 400,
-                "occupations": "smearing",
-                "smearing": "m-v",
-                "degauss": 0.02,
-                "lspinorb": True,
-                "noncolin": True,},
+        system={
+            "ibrav": 4,
+            "celldm(1)": a,
+            "celldm(3)": c/a,
+            "ecutwfc": 50,
+            "ecutrho": 400,
+            "occupations": "smearing",
+            "smearing": "m-v",
+            "degauss": 0.02,
+            "lspinorb": True,
+            "noncolin": True,},
         electrons={"conv_thr": 1e-8,
                    "electron_maxstep": 120,
-                   "mixing_beta": 0.1,
+                   "mixing_beta": 0.4,
                    "mixing_ndim": 15,
-                   "mixing_mode": "local-TF",
+                   "mixing_mode": "plain",
                    "diagonalization": 'david'},
-        kpoints_grid=(4, 4, 1),
+        kpoints_grid=(3, 3, 1),
         ions={
             "ion_dynamics":'bfgs',
               },
@@ -127,7 +132,7 @@ output_dir = "ACOptimization/out"
 folderName = "ACOptimization"
 a0 = 4.824
 c0 = 15.826
-k_list = [i/100 for i in range(80, 121, 2)]
+k_list = [i/100 for i in range(90, 111, 2)]
 P = 1000000
 r3 = sqrt(3)
 a2 = a0*a0
@@ -159,6 +164,7 @@ while P > 0.1:
         generateConfig(pair[0], pair[1], coords, species, folderName, i, "iso")
 
     P = 0
+    break
 
     print('DFT energies')
     for in_file in glob.glob(f"{input_dir}/*.in"):
@@ -166,7 +172,8 @@ while P > 0.1:
         out_file = f"{output_dir}/{base_name}"
         run_qe_calculation(in_file, out_file, np=4)
 
-    print("printing diagrams")
+    print('getting energies from file')
+    print("drawing diagrams")
     print("saving diagrams")
 
     print("making polynomials")

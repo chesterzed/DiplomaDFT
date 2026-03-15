@@ -1,23 +1,26 @@
 &CONTROL
   calculation = 'vc-relax',
+  etot_conv_thr = 1d-05,
   forc_conv_thr = 0.001,
   outdir = './ACOptimization/out',
   prefix = 'iso',
   pseudo_dir = './pseudo',
   title = 'Optimisation A C for MgNi2',
-  tprnfor = '.true.',
-  tstress = '.true.',
+  tprnfor = .TRUE.,
+  tstress = .TRUE.,
   wf_collect = .FALSE.,
 /
 &SYSTEM
+  celldm(1) = 5.126264937736916,
+  celldm(3) = 3.280679933665008,
   degauss = 0.02,
   ecutrho = 400,
   ecutwfc = 50,
+  ibrav = 4,
   lspinorb = .TRUE.,
   noncolin = .TRUE.,
   occupations = 'smearing',
   smearing = 'm-v',
-  ibrav = 0,
   nat = 24,
   ntyp = 2,
 /
@@ -25,8 +28,8 @@
   conv_thr = 1d-08,
   diagonalization = 'david',
   electron_maxstep = 120,
-  mixing_beta = 0.1,
-  mixing_mode = 'local-TF',
+  mixing_beta = 0.4,
+  mixing_mode = 'plain',
   mixing_ndim = 15,
 /
 &IONS
@@ -65,7 +68,7 @@ ATOMIC_POSITIONS crystal
   Ni 0.000000 0.500000 0.000000
   Ni 0.000000 0.500000 0.500000
 K_POINTS automatic
-  4 4 1 0 0 0
+  3 3 1 0 0 0
 CELL_PARAMETERS angstrom
   5.126265 0.000000 0.000000
   -2.563132 4.439476 0.000000
