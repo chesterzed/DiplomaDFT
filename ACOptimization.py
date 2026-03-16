@@ -6,7 +6,7 @@ import numpy as np
 from pymatgen.core import Lattice, Structure
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.pwscf import PWInput
-
+import re
 import glob
 
 
@@ -99,7 +99,7 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
             "conv_thr": 1e-8,
             "electron_maxstep": 120,
             "mixing_beta": 0.1,
-            "mixing_ndim": 30,
+            "mixing_ndim": 20,
             "mixing_mode": "local-TF",
             "diagonalization": 'david'
         },
@@ -123,16 +123,14 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
     print("Создан QE input:", filename)
 
 
-# def get_energies_from_file(output_path):
-#     energies = dict()
-#     pathPattern = f"{output_path}/*_*.out"
-#     for file in glob.glob(pathPattern):
-#         with open(file, 'r') as f:
-#             content = f.read()
-#         pattern = r'!    total energy\s+=\s+([-\d.]+) Ry'
-#         match = re.search(pattern, content)
-
-
+def get_energies_from_file(output_path):
+    energies = dict()
+    pathPattern = f"{output_path}/*_*.out"
+    for file in glob.glob(pathPattern):
+        with open(file, 'r') as f:
+            content = f.read()
+        pattern = r'!    total energy\s+=\s+([-\d.]+) Ry'
+        match = re.search(pattern, content)
 
 
 ##########################################################################################
@@ -205,5 +203,4 @@ while P > 0.1:
     print(f"Comparing ") # todo: add comparisons into output
     print("Updating P")
     print(f"Looking for new average point")
-
 
