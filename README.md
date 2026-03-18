@@ -21,3 +21,6 @@ just picture:
 
 ### PW Input documentation
 - https://www.quantum-espresso.org/Doc/INPUT_PW.html
+
+### Requirements
+- python 3.11.9
