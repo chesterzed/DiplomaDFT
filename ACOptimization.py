@@ -2,6 +2,8 @@ import subprocess
 import os
 from datetime import datetime
 from math import sqrt
+
+import matplotlib.pyplot as plt
 import numpy as np
 from pymatgen.core import Lattice, Structure
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -66,6 +68,7 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
         species=[a.symbol for a in atoms],
         coords=atoms.get_scaled_positions()
     )
+
     print('pwinput', end=', ')
     pwinput = PWInput(
         structure=pmg_struct,
@@ -75,7 +78,7 @@ def generateConfig(a, c, crds, spcs, path, idx, name="laves"):
         },
         control={
             "title": 'Optimisation A C for MgNi2',
-            "calculation": "vc-relax",
+            "calculation": "relax",
             "forc_conv_thr": 0.001,
             "etot_conv_thr": 0.00001,
             "prefix": f"{name}",
@@ -153,7 +156,8 @@ output_dir = "ACOptimization/out"
 folderName = "ACOptimization"
 a0 = 4.824
 c0 = 15.826
-k_list = [i/100 for i in range(90, 111, 2)]
+k_list = [i/100 for i in range(92, 109, 2)]
+k_list_iso = [i/100 for i in range(88, 113, 2)]
 P = 1000000
 r3 = sqrt(3)
 a2 = a0*a0
@@ -167,40 +171,49 @@ while P > 0.1:
     f = c0 / a0
     iso_a_list = [np.cbrt((2*V0*k)/(r3*f)) for k in k_list]
     iso_list = [(float(a), float(iso_a_list[i] * f)) for i, a in enumerate(iso_a_list)]
+    k_list_iso = [(float(a), float(iso_a_list[i] * f)) for i, a in enumerate(iso_a_list)]
 
-    print(iso_list)
 
-    print('config generation')
-    print('c const, a list')
+    print([t[1] / t[0] for t in iso_list])
+    plt.scatter(a_list, [c0]*len(a_list))
+    plt.scatter([a0] * len(a_list), c_list)
+    plt.scatter(iso_a_list, [float(iso_a_list[i] * f) for i, a in enumerate(iso_a_list)])
+    plt.show()
+    P = 0
+
+    # print(iso_list)
+
+    # print('config generation')
+    # print('c const, a list')
     for i, a in enumerate(a_list):
         print(k_list[i], end=' ')
         generateConfig(a, c0, coords, species, folderName, i, "a_const")
-    print('\nc list, a const')
-    for i, c in enumerate(c_list):
-        print(k_list[i], end=' ')
-        generateConfig(a0, c, coords, species, folderName, i, "c_const")
-    print('\nc, a iso')
-    for i, pair in enumerate(iso_list):
-        print(k_list[i], end=' ')
-        generateConfig(pair[0], pair[1], coords, species, folderName, i, "iso")
+    # print('\nc list, a const')
+    # for i, c in enumerate(c_list):
+    #     print(k_list[i], end=' ')
+    #     generateConfig(a0, c, coords, species, folderName, i, "c_const")
+    # print('\nc, a iso')
+    # for i, pair in enumerate(iso_list):
+    #     print(k_list[i], end=' ')
+    #     generateConfig(pair[0], pair[1], coords, species, folderName, i, "iso")
+    #
+    # P = 0
+    #
+    # print('DFT energies')
+    # for in_file in glob.glob(f"{input_dir}/*.in"):
+    #     base_name = os.path.basename(in_file).replace('.in', '.out')
+    #     out_file = f"{output_dir}/{base_name}"
+    #     run_qe_calculation(in_file, out_file, np=4)
 
-    P = 0
-
-    print('DFT energies')
-    for in_file in glob.glob(f"{input_dir}/*.in"):
-        base_name = os.path.basename(in_file).replace('.in', '.out')
-        out_file = f"{output_dir}/{base_name}"
-        run_qe_calculation(in_file, out_file, np=4)
-
-    print('getting energies from file')
-    print("drawing diagrams")
-    print("saving diagrams")
-
-    print("making polynomials")
-    print("looking for minimum")
-    print("getting derivative")
-
-    print(f"Comparing ") # todo: add comparisons into output
-    print("Updating P")
-    print(f"Looking for new average point")
+    # print('getting energies from file')
+    # print("drawing diagrams")
+    # print("saving diagrams")
+    #
+    # print("making polynomials")
+    # print("looking for minimum")
+    # print("getting derivative")
+    #
+    # print(f"Comparing ") # todo: add comparisons into output
+    # print("Updating P")
+    # print(f"Looking for new average point")
 
