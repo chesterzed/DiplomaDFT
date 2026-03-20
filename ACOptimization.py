@@ -168,6 +168,28 @@ def get_energies_from_file(file_path):
                 return line.strip().split()[3]
     return None
 
+
+import sys
+
+
+class Tee:
+    def __init__(self, *files):
+        self.files = files
+
+    def write(self, obj):
+        for f in self.files:
+            f.write(obj)
+            f.flush()
+
+    def flush(self):
+        for f in self.files:
+            f.flush()
+
+
+log_file = open('output.log', 'w')
+original_stdout = sys.stdout
+sys.stdout = Tee(original_stdout, log_file)
+
 ##########################################################################################
 
 
@@ -255,8 +277,8 @@ while P > 0.1:
     poly = np.poly1d(coefficients)
     V_poly = np.linspace(min(V_list), max(V_list), 100)
     E_poly = poly(V_poly)
-    print(f"\tcoefficients: {coefficients}")
-    print(f"\tpolynomial: {poly}")
+    print(f"\tcoefficients: {list(coefficients)}")
+    print(f"\tP = {' + '.join([f'{x:0.15f}x^{len(poly) - i}' for i, x in enumerate(list(poly))])}")
 
     print("drawing diagrams")
     plt.plot(V_list, energies, 'o', label='Base points')
@@ -282,9 +304,9 @@ while P > 0.1:
     print(f"\tP = {' + '.join([f'{x:0.15f}x^{len(deriv) - i}' for i, x in enumerate(list(deriv))])} where x is {Vmin}")
     print(f"\tP = {new_P * RyA_to_Jm}")
 
-    print(f"Comparing ")  # todo: add comparisons into output
-    print("Updating P")
+    print(f"Comparing {P} ~ {new_P * RyA_to_Jm}...")
     if P > new_P * RyA_to_Jm:
+        print("Updating P")
         P = new_P * RyA_to_Jm
 
     print(f"Calculating new a0 c0")
@@ -309,3 +331,6 @@ new C = {c0}
 new C/A = {c0 / a0}""")
 
     loop_number += 1
+
+sys.stdout = original_stdout
+log_file.close()

@@ -24,3 +24,6 @@ just picture:
 
 ### Requirements
 - python 3.11.9
+
+### Installation guide of Quantum Espresso with GPU acceleration
+- soon...
