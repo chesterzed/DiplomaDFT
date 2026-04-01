@@ -216,3 +216,52 @@ def get_energies_from_file(file_path):
 def is_valid_structure(atoms, min_dist=1.8):
     dists = atoms.get_all_distances(mic=True)
     return (dists[dists > 0] > min_dist).all()
+
+
+def make_pwinput(pmg_struct, calculation, outdir=f"./C36/out_logs/C36_out"):
+    return PWInput(
+        structure=pmg_struct,
+        pseudo={
+            "Mg": "Mg.pbe-spnl-kjpaw_psl.1.0.0.UPF",
+            "Ni": "Ni.pbe-spn-kjpaw_psl.1.0.0.UPF"
+        },
+        control={
+            "title": 'C36_MgNi2',
+            "calculation": calculation,
+            "forc_conv_thr": 0.001,
+            "etot_conv_thr": 0.00001,
+            "prefix":"laves_C36",
+            "outdir":outdir,
+            "pseudo_dir":"./pseudo",
+            "tstress": True,
+            "tprnfor": True,
+            "restart_mode": "from_scratch" if calculation == "vc-relax" else "restart",
+        },
+        system={
+            "ibrav": 0,
+            "ecutwfc": 60,
+            "ecutrho": 480,
+            "occupations": "smearing",
+            "smearing": "m-v",
+            "degauss": 0.03,
+            "lspinorb": False,
+            "noncolin": False,
+        },
+        electrons={
+            "conv_thr": 1e-7,
+            "electron_maxstep": 300,
+            "mixing_beta": 0.25,
+            "mixing_ndim": 20,
+            "mixing_mode": "plain",
+            "diagonalization": 'david'
+        },
+        kpoints_grid=(3, 3, 1),
+        ions={
+            "ion_dynamics": "bfgs",
+            "nstep": 5,
+        } if calculation in ["relax", "vc-relax"] else None,
+        cell={
+            "cell_dynamics": "bfgs",
+            "nstep": 5,
+        } if calculation == "vc-relax" else None,
+    )

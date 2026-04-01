@@ -95,58 +95,32 @@ for idx, atoms_cfg in enumerate(structures):
         species=[a.symbol for a in atoms_cfg],
         coords=atoms_cfg.get_scaled_positions()
     )
-    pwinput = PWInput(
-        structure=pmg_struct,
-        pseudo={
-            "Mg": "Mg.pbe-spnl-kjpaw_psl.1.0.0.UPF",
-            "Ni": "Ni.pbe-spn-kjpaw_psl.1.0.0.UPF"
-        },
-        control={
-            "title": 'C36_MgNi2',
-            "calculation": "scf",
-            "forc_conv_thr": 0.001,
-            "etot_conv_thr": 0.00001,
-            "prefix":"laves_C36",
-            "outdir":f"./C36/out_logs/C36_out_{idx}",
-            "pseudo_dir":"./pseudo",
-            "tstress": True,
-            "tprnfor": True,
-            "wf_collect": False,
-        },
-        system={
-            "ibrav": 0,
-            "ecutwfc": 60,
-            "ecutrho": 480,
-            "occupations": "smearing",
-            "smearing": "m-v",
-            "degauss": 0.02,
-            "lspinorb": False,
-            "noncolin": False,
-        },
-        electrons={
-            "conv_thr": 1e-7,
-            "electron_maxstep": 300,
-            "mixing_beta": 0.3,
-            "mixing_ndim": 20,
-            "mixing_mode": "local-TF",
-            "diagonalization": 'david'
-        },
-        kpoints_grid=(3, 3, 1),
-        ions=None,
-        cell=None,
-    )
 
     if idx >= 2:
-        filename = f'C36/in/laves_{idx:03d}.in'
-        out_file = f"C36/out/laves_{idx:03d}.out"
+        method = 'vc-relax'
+        in_file = f'C36/in/laves_{method}_{idx:03d}.in'
+        out_file = f"C36/out/laves_{method}_{idx:03d}.out"
+        pwinput = make_pwinput(pmg_struct, method, f"./C36/out_logs/C36_out_{idx}")
+        pwinput.write_file(in_file)
+        print("Создан QE input:", in_file)
+        run_qe_calculation(in_file, out_file, np=1)
 
-        pwinput.write_file(filename)
-        print("Создан QE input:", filename)
-        run_qe_calculation(filename, out_file, np=1)
+        method = 'relax'
+        in_file = f'C36/in/laves_{method}_{idx:03d}.in'
+        out_file = f"C36/out/laves_{method}_{idx:03d}.out"
+        pwinput = make_pwinput(pmg_struct, method, f"./C36/out_logs/C36_out_{idx}")
+        pwinput.write_file(in_file)
+        print("Создан QE input:", in_file)
+        run_qe_calculation(in_file, out_file, np=1)
 
+        method = 'scf'
+        in_file = f'C36/in/laves_{method}_{idx:03d}.in'
+        out_file = f"C36/out/laves_{method}_{idx:03d}.out"
+        pwinput = make_pwinput(pmg_struct, method, f"./C36/out_logs/C36_out_{idx}")
+        pwinput.write_file(in_file)
+        print("Создан QE input:", in_file)
+        run_qe_calculation(in_file, out_file, np=1)
 
-# for i, s in enumerate(structures):
-#     write(f"C36/xyz/structure_{i}.xyz", s)
 
 
 sys.stdout = original_stdout
