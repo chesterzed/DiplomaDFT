@@ -14,7 +14,7 @@ class Tee:
         for f in self.files:
             f.flush()
 
-datestamp = datetime.now().strftime('%HH%MM%SS_%dD%mM%yY')
+datestamp = datetime.now().strftime('%yY%mM%dD_%HH%MM%SS')
 os.makedirs(log_dir, exist_ok=True)
 log_file = open(f'{log_dir}/output_{datestamp}.log', 'w')
 

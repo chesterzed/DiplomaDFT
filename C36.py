@@ -15,7 +15,7 @@ class Tee:
         for f in self.files:
             f.flush()
 
-datestamp = datetime.now().strftime('%HH%MM%SS_%dD%mM%yY')
+datestamp = datetime.now().strftime('%yY%mM%dD_%HH%MM%SS')
 os.makedirs(log_dir, exist_ok=True)
 os.makedirs("imgs", exist_ok=True)
 log_file = open(f'{log_dir}/output_{datestamp}.log', 'w')
@@ -96,7 +96,7 @@ for idx, atoms_cfg in enumerate(structures):
         coords=atoms_cfg.get_scaled_positions()
     )
 
-    if idx >= 2:
+    if idx >= 3:
         method = 'vc-relax'
         in_file = f'C36/in/laves_{method}_{idx:03d}.in'
         out_file = f"C36/out/laves_{method}_{idx:03d}.out"
@@ -116,11 +116,10 @@ for idx, atoms_cfg in enumerate(structures):
         method = 'scf'
         in_file = f'C36/in/laves_{method}_{idx:03d}.in'
         out_file = f"C36/out/laves_{method}_{idx:03d}.out"
-        pwinput = make_pwinput(pmg_struct, method, f"./C36/out_logs/C36_out_{idx}")
+        pwinput = make_pwinput(pmg_struct, method, f"./C36/out_logs/C36_out_{idx}", kpoints_grid=(8, 8, 3))
         pwinput.write_file(in_file)
         print("Создан QE input:", in_file)
         run_qe_calculation(in_file, out_file, np=1)
-
 
 
 sys.stdout = original_stdout

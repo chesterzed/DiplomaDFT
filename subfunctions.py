@@ -66,7 +66,7 @@ def vacancy_defect(atoms, vac_prob=0.02):
 ################### ACOptimization ###################
 
 
-def run_qe_calculation(input_file, output_file, np=4):
+def run_qe_calculation(input_file, output_file, np=1):
     cmd = f"""
         export OMPI_MCA_coll=^hcoll ;
         export OMPI_MCA_btl=tcp,self ;
@@ -218,7 +218,11 @@ def is_valid_structure(atoms, min_dist=1.8):
     return (dists[dists > 0] > min_dist).all()
 
 
-def make_pwinput(pmg_struct, calculation, outdir=f"./C36/out_logs/C36_out"):
+def make_pwinput(pmg_struct, calculation,
+                 outdir="./C36/out_logs/C36_out",
+                 kpoints_grid: tuple=(3, 3, 1)
+                 ):
+    os.makedirs(outdir, exist_ok=True)
     return PWInput(
         structure=pmg_struct,
         pseudo={
@@ -236,6 +240,7 @@ def make_pwinput(pmg_struct, calculation, outdir=f"./C36/out_logs/C36_out"):
             "tstress": True,
             "tprnfor": True,
             "restart_mode": "from_scratch" if calculation == "vc-relax" else "restart",
+            "nstep": 5 if calculation in ["relax", "vc-relax"] else 1
         },
         system={
             "ibrav": 0,
@@ -251,17 +256,16 @@ def make_pwinput(pmg_struct, calculation, outdir=f"./C36/out_logs/C36_out"):
             "conv_thr": 1e-7,
             "electron_maxstep": 300,
             "mixing_beta": 0.25,
-            "mixing_ndim": 20,
+            "mixing_ndim": 12,
             "mixing_mode": "plain",
             "diagonalization": 'david'
         },
-        kpoints_grid=(3, 3, 1),
+        kpoints_grid=kpoints_grid,
         ions={
             "ion_dynamics": "bfgs",
-            "nstep": 5,
+            "trust_radius_max": 0.05,
         } if calculation in ["relax", "vc-relax"] else None,
         cell={
-            "cell_dynamics": "bfgs",
-            "nstep": 5,
+            "cell_dynamics": "bfgs"
         } if calculation == "vc-relax" else None,
     )
