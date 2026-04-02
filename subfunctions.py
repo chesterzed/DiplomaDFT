@@ -245,7 +245,7 @@ def make_pwinput(pmg_struct, calculation,
         system={
             "ibrav": 0,
             "ecutwfc": 60,
-            "ecutrho": 480,
+            "ecutrho": 600,
             "occupations": "smearing",
             "smearing": "m-v",
             "degauss": 0.03,

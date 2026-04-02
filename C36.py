@@ -97,29 +97,14 @@ for idx, atoms_cfg in enumerate(structures):
     )
 
     if idx >= 3:
-        method = 'vc-relax'
-        in_file = f'C36/in/laves_{method}_{idx:03d}.in'
-        out_file = f"C36/out/laves_{method}_{idx:03d}.out"
-        pwinput = make_pwinput(pmg_struct, method, f"./C36/out_logs/C36_out_{idx}")
-        pwinput.write_file(in_file)
-        print("Создан QE input:", in_file)
-        run_qe_calculation(in_file, out_file, np=1)
-
-        method = 'relax'
-        in_file = f'C36/in/laves_{method}_{idx:03d}.in'
-        out_file = f"C36/out/laves_{method}_{idx:03d}.out"
-        pwinput = make_pwinput(pmg_struct, method, f"./C36/out_logs/C36_out_{idx}")
-        pwinput.write_file(in_file)
-        print("Создан QE input:", in_file)
-        run_qe_calculation(in_file, out_file, np=1)
-
-        method = 'scf'
-        in_file = f'C36/in/laves_{method}_{idx:03d}.in'
-        out_file = f"C36/out/laves_{method}_{idx:03d}.out"
-        pwinput = make_pwinput(pmg_struct, method, f"./C36/out_logs/C36_out_{idx}", kpoints_grid=(8, 8, 3))
-        pwinput.write_file(in_file)
-        print("Создан QE input:", in_file)
-        run_qe_calculation(in_file, out_file, np=1)
+        methods = ['vc-relax', 'relax', 'scf']
+        for method in methods:
+            in_file = f'C36/in/laves_{idx:03d}_{method}.in'
+            out_file = f"C36/out/laves_{idx:03d}_{method}.out"
+            pwinput = make_pwinput(pmg_struct, method, f"./C36/out_logs/C36_out_{idx}", kpoints_grid=(8, 8, 3))
+            pwinput.write_file(in_file)
+            print("Создан QE input:", in_file)
+            run_qe_calculation(in_file, out_file, np=1)
 
 
 sys.stdout = original_stdout
