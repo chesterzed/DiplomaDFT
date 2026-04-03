@@ -1,5 +1,3 @@
-from ase.data import atomic_masses_legacy
-
 from subfunctions import *
 
 class Tee:
@@ -96,12 +94,12 @@ for idx, atoms_cfg in enumerate(structures):
         coords=atoms_cfg.get_scaled_positions()
     )
 
-    if idx >= 3:
+    if idx >= 18:
         methods = ['vc-relax', 'relax', 'scf']
         for method in methods:
             in_file = f'C36/in/laves_{idx:03d}_{method}.in'
             out_file = f"C36/out/laves_{idx:03d}_{method}.out"
-            pwinput = make_pwinput(pmg_struct, method, f"./C36/out_logs/C36_out_{idx}", kpoints_grid=(8, 8, 3))
+            pwinput = make_pwinput(pmg_struct, method, f"./C36/out_logs/C36_out_{idx}", kpoints_grid=(3, 3, 1))
             pwinput.write_file(in_file)
             print("Создан QE input:", in_file)
             run_qe_calculation(in_file, out_file, np=1)

@@ -89,7 +89,7 @@ def run_qe_calculation(input_file, output_file, np=1):
                                 capture_output=True,
                                 executable='/bin/bash',
                                 text=True,
-                                timeout=36000)
+                                timeout=360000)
 
         print(f"Finish time: {datetime.now()}")
         print(f"Exit code: {result.returncode}")
@@ -232,7 +232,7 @@ def make_pwinput(pmg_struct, calculation,
         control={
             "title": 'C36_MgNi2',
             "calculation": calculation,
-            "forc_conv_thr": 0.001,
+            "forc_conv_thr": 0.0001,
             "etot_conv_thr": 0.00001,
             "prefix":"laves_C36",
             "outdir":outdir,
@@ -240,12 +240,12 @@ def make_pwinput(pmg_struct, calculation,
             "tstress": True,
             "tprnfor": True,
             "restart_mode": "from_scratch" if calculation == "vc-relax" else "restart",
-            "nstep": 5 if calculation in ["relax", "vc-relax"] else 1
+            "nstep": 12 if calculation in ['vc-relax', 'relax'] else 1
         },
         system={
             "ibrav": 0,
-            "ecutwfc": 60,
-            "ecutrho": 600,
+            "ecutwfc": 80,
+            "ecutrho": 480,
             "occupations": "smearing",
             "smearing": "m-v",
             "degauss": 0.03,
@@ -253,9 +253,9 @@ def make_pwinput(pmg_struct, calculation,
             "noncolin": False,
         },
         electrons={
-            "conv_thr": 1e-7,
-            "electron_maxstep": 300,
-            "mixing_beta": 0.25,
+            "conv_thr": 1e-5,
+            "electron_maxstep": 120,
+            "mixing_beta": 0.2,
             "mixing_ndim": 12,
             "mixing_mode": "plain",
             "diagonalization": 'david'
@@ -264,7 +264,7 @@ def make_pwinput(pmg_struct, calculation,
         ions={
             "ion_dynamics": "bfgs",
             "trust_radius_max": 0.05,
-        } if calculation in ["relax", "vc-relax"] else None,
+        } if calculation in ['vc-relax', 'relax'] else None,
         cell={
             "cell_dynamics": "bfgs"
         } if calculation == "vc-relax" else None,
