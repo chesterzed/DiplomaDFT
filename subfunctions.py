@@ -220,7 +220,7 @@ def is_valid_structure(atoms, min_dist=1.8):
 
 def make_pwinput(pmg_struct, calculation,
                  outdir="./C36/out_logs/C36_out",
-                 kpoints_grid: tuple=(3, 3, 1)
+                 kpoints_grid: tuple=(4, 4, 1)
                  ):
     os.makedirs(outdir, exist_ok=True)
     return PWInput(
@@ -244,8 +244,8 @@ def make_pwinput(pmg_struct, calculation,
         },
         system={
             "ibrav": 0,
-            "ecutwfc": 80,
-            "ecutrho": 480,
+            "ecutwfc": 70,
+            "ecutrho": 560,
             "occupations": "smearing",
             "smearing": "m-v",
             "degauss": 0.03,
@@ -254,10 +254,10 @@ def make_pwinput(pmg_struct, calculation,
         },
         electrons={
             "conv_thr": 1e-5,
-            "electron_maxstep": 120,
+            "electron_maxstep": 130,
             "mixing_beta": 0.2,
             "mixing_ndim": 12,
-            "mixing_mode": "plain",
+            "mixing_mode": "local-TF",
             "diagonalization": 'david'
         },
         kpoints_grid=kpoints_grid,
