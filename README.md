@@ -27,3 +27,9 @@ just picture:
 
 ### Installation guide of Quantum Espresso with GPU acceleration
 - soon...
+
+### Useful commands
+
+- Check amount of correct out files
+`ls *0_scf.out | grep -rlE "convergence has been achieved in" . | wc -l`
+

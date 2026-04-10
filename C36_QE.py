@@ -26,7 +26,8 @@ sys.stdout = Tee(original_stdout, log_file)
 # find files
 os.makedirs('C36', exist_ok=True)
 os.makedirs('C36/out', exist_ok=True)
-in_files = sorted(glob.glob(f"C36/in/laves*.in"))[2:]
+in_files = glob.glob(f"C36/in/laves_018*.in")
+in_files.insert(1, in_files.pop(2))
 print(' '.join(in_files))
 energies = []
 for in_file in in_files:

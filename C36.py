@@ -75,11 +75,11 @@ structures = [atoms]
 
 print(atoms)
 
-for i in range(100):
-    config = random_displacement(atoms, amplitude=0.01)
-    config = strain_cell(config, strain=0.005)
-    config = random_swap(config, swap_prob=0.01)
-    config = vacancy_defect(config, vac_prob=0.009)
+for i in range(250):
+    config = random_displacement(atoms, amplitude=0.005)
+    config = strain_cell(config, strain=0.001)
+    config = random_swap(config, swap_prob=0.005)
+    config = vacancy_defect(config, vac_prob=0.01)
     if is_valid_structure(config):
         structures.append(config)
     # print(config)
@@ -94,12 +94,17 @@ for idx, atoms_cfg in enumerate(structures):
         coords=atoms_cfg.get_scaled_positions()
     )
 
-    if idx >= 18:
-        methods = ['vc-relax', 'relax', 'scf']
-        for method in methods:
-            in_file = f'C36/in/laves_{idx:03d}_{method}.in'
-            out_file = f"C36/out/laves_{idx:03d}_{method}.out"
-            pwinput = make_pwinput(pmg_struct, method, f"./C36/out_logs/C36_out_{idx}", kpoints_grid=(3, 3, 1))
+    if idx >= 123:
+        methods = ['scf']
+        for i, method in enumerate(methods):
+            in_file = f'C36/in/laves_{idx:03d}_{i}_{method}.in'
+            out_file = f"C36/out/laves_{idx:03d}_{i}_{method}.out"
+            pwinput = make_pwinput(pmg_struct=pmg_struct,
+                                   calculation=method,
+                                   outdir=f"./C36/out_logs/C36_out_{idx}",
+                                   restart_mode="from_scratch" if method == methods[0] else "restart",
+                                   kpoints_grid=(3, 3, 1),
+                                   )
             pwinput.write_file(in_file)
             print("Создан QE input:", in_file)
             run_qe_calculation(in_file, out_file, np=1)
